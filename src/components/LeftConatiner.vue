@@ -2,7 +2,7 @@
 <div class="leftConatiner">
     <LeftConatinerHeader></LeftConatinerHeader>
     <div class="inputBoxDv">
-        <input type="text" class="searchTextBox" placeholder="Search or start a new chat" v-model="searchPeople" v-on:keyup="search(searchPeople)" v-on:keydown="Emptysearch()" v-on:keyup.enter="search(searchPeople)"/>
+        <input type="text" class="searchTextBox" placeholder="Search or start a new chat" v-model="searchPeople" v-on:keyup="search(searchPeople)" v-on:keyup.enter="search(searchPeople)"/>
         <span class="searchIcon"><img src="./../assets/img/search.png" /></span>
     </div>
     <div class="mainContactDv">
@@ -12,23 +12,24 @@
             <span class="contactName">{{friend.name}}</span><br>
             <span class="contactChatDesc">{{friend.lastchat}}</span>
         </div>
-        <div class="chatTime fRght">{{time}}</div>
+         <div class="chatTime fRght">{{friend.date}}</div>
     </div>
     </div>
 </div>
 </template>
 <script>
- import LeftConatinerHeader from './LeftConatinerHeader';
- import * as Constant from '../common/Constants';
+import LeftConatinerHeader from './LeftConatinerHeader';
+import * as Constant from '../common/Constants';
 import { publishEvent } from '../common/Observer';
- import friend  from './../friend.json'
+import appService from './../service/appConversionService';
+import {timestampToDate, debounce} from './../common/Utils';
  
 export default {
 
      data() {
       return {
           name: 'ram',
-          lastConverstaionText:'asdasjfh sjfhjdshf jksfkhsd',
+          lastConverstaionText:'NA',
           time:"07/03/1991",
           friends:[],
           searchPeople:''
@@ -42,15 +43,23 @@ export default {
     },
 
     methods: {
-    fetchTransactions() {
-            publishEvent(Constant.SHOW_LOADER);
-            this.friends = friend.friend;
-            console.log(this.friends);
-            this.totalCount = friend.friend.length;
-            publishEvent(Constant.HIDE_LOADER);
-            localStorage.setItem('friends', JSON.stringify(friend.friend));
+    fetchTransactions:function() {
+            appService.getFriend().then(response => {
+                publishEvent(Constant.SHOW_LOADER);
+                
+                for(let x = 0;x<response.data.length; x++){
+                    response.data[x].date = timestampToDate(response.data[x].date);
+                }
+                this.friends = response.data;
+                this.totalCount = response.length;
+                localStorage.setItem('friends', JSON.stringify(this.friends));
+                publishEvent(Constant.HIDE_LOADER);
+            }).catch(error => {
+
+            })
+            
         },
-        search(text) {
+        search:debounce(function(text) {
             let searchResults = []
             let searchPeople = text.toLowerCase();
             this.friends = JSON.parse(localStorage.getItem('friends'));
@@ -62,9 +71,9 @@ export default {
                 this.Emptysearch();
                 return;
             }
-      },
+      },100),
 
-      Emptysearch() {
+      Emptysearch:function() {
            if (this.searchPeople != '' ) {} else {
             this.friends = JSON.parse(localStorage.getItem('friends'));
             this.totalCount = this.friends.length;

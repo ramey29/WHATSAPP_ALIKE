@@ -5,4 +5,6 @@ const getFriend = () => {
   return Proteus().get(getFriendAPI().GET_FRIEND);
 };
 
-export default {getFriend}
+export default {
+  getFriend
+};

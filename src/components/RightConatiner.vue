@@ -13,8 +13,8 @@
         </div>
         <footer class="footerChat">
             <span class="footerIcon"><img src="../assets/img/smile.png" /></span>
-            <input id="chatbox" v-model="chatinput" type="text" placeholder="Type a message" @change="chatTypeEvent" /> 
-            <span class="footerIcon"><img src="../assets/img/smile.png" /></span>
+            <input id="chatbox" v-model="chatinput" type="text" placeholder="Type a message" @keyup.enter="chatTypeEvent" /> 
+            <span class="footerIcon"><img src="../assets/img/microphone.png" /></span>
         </footer>
     </div>
 </div>
@@ -50,21 +50,20 @@ export default {
     },
     methods: { 
    
-    chatTypeEvent : debounce(function() {
+    chatTypeEvent : function() {
                    if(this.chatinput !== ''){
                     emit('message', this.chatinput);
                     console.log(this.chatinput);
                     this.addChatMessage(this.chatinput);
                     this.chatinput = '';
                    }
-                }, 100),
-       
+    },  
     addChatMessage : function(data, options) {
             let x = this.messages;
             x.push(data);
             this.messages = x;
            this.scrollToEnd();
-     },
+    },
      scrollToEnd: function() {    	
       let container = this.$el.querySelector(".chatMainDV");
       container.scrollTop = container.scrollHeight;

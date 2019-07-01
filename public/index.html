@@ -20,4 +20,14 @@
   </body>
   
   <!-- <script src="https://code.jquery.com/jquery-1.11.1.js"></script> -->
+  <script>
+    let socket = io();
+    socket = io.connect('http://localhost:3000');
+    socket.on('connect', ()=> {
+      console.log(socket.id);
+    });
+    socket.on('disconnect', () => {
+          console.log('disconnect');
+    });
+  </script>
 </html>

@@ -1,7 +1,10 @@
 # smallapp
 
 ## Project setup
-npm install
+npm install 
+
+## install vue-cli globally
+npm install -g @vue/cli 
 
 ### Compiles and hot-reloads for development
 npm run serve
