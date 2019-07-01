@@ -1,7 +1,7 @@
 <template>
 <div class="lCHeader">
     <div class="clearfix">
-        <div class="fLft userIConImg"><img src="./../assets/img/id-card.png" /><span class="userFriendName">{{FriendName}}</span></div>
+        <div class="fLft userIConImg"><img :src="profileimg" /><span class="userFriendName">{{FriendName}}</span></div>
         <div class="clearfix otherIconDv fRght">
             <div class="fRght otherIcon"><img src="./../assets/img/menu.png" /></div>
             <div class="fRght otherIcon"><img src="./../assets/img/attach.png" /></div>
@@ -12,17 +12,26 @@
 </div>
 </template>
 <script>
- 
+ import { subscribeEvent } from './../common/Observer';
 export default {
 
-     data() {
-      return {
-          FriendName: 'ram',
-      };
-  },
+    data() {
+        return {
+            FriendName: 'ram',
+            profileimg:'http://www.fillmurray.com/400/200'
+        };
+    },
+    created() {
+        subscribeEvent('username',(data)=>{
+            this.FriendName = data;
+        });
+        subscribeEvent('userimage',(data)=>{
+            this.profileimg = data;
+        });
+    },
 
- methods: {
-   
+    methods: {
+    
     }
 }
 </script>

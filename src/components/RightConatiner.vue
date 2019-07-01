@@ -4,7 +4,7 @@
     <div class="chatConatiner" v-else>
         <RightConatinerHeader></RightConatinerHeader>
         <div class="chatMainDV clearfix">
-          <div class="fLft">
+          <div class="fLft" v-bind:id="currentID">
                 <div class="talk-bubble tri-right round right-in"  v-for="message in messages" :key="message">
                     <div class="talktext"><p>{{message}}</p></div>
                 </div>
@@ -25,8 +25,8 @@
 
 <script>
 import { debounce } from './../common/Utils';
-import * as Constant from '../common/Constants';
-import { publishEvent } from '../common/Observer';
+import * as Constant from './../common/Constants';
+import { subscribeEvent } from './../common/Observer';
 import {emit} from './../common/socket'
 import RightConatinerHeader from "./RightConatinerHeader";
 
@@ -39,12 +39,17 @@ export default {
             nochat:false,
             chatinput:'',
             messages : [],
+            currentID:0
         }
     },
      components: {
          RightConatinerHeader
     },
     created() {
+        subscribeEvent('idSelected',(data)=>{
+            this.currentID = data;
+        });
+        
     },
     mounted(){
     },

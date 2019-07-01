@@ -6,8 +6,8 @@
         <span class="searchIcon"><img src="./../assets/img/search.png" /></span>
     </div>
     <div class="mainContactDv">
-    <div class="clearfix contactDv" v-for="(friend, index) in friends" :key="index" :id="friend.contactid">
-        <div class="fLft contactIMageDv"><img src="./../assets/img/id-card.png" class="chatImage" /></div>
+    <div class="clearfix contactDv" v-for="(friend, index) in friends" :key="index" :id="friend._id" v-bind:class="{ active: index == selectedIndex }" @click="ChatSelectedUser(friend._id,friend.name,index,friend.profileimg)">
+        <div class="fLft contactIMageDv"><img :src="friend.profileimg" class="chatImage" /></div>
         <div class="chatDetailDv fLft">
             <span class="contactName">{{friend.name}}</span><br>
             <span class="contactChatDesc">{{friend.lastchat}}</span>
@@ -19,8 +19,8 @@
 </template>
 <script>
 import LeftConatinerHeader from './LeftConatinerHeader';
-import * as Constant from '../common/Constants';
-import { publishEvent } from '../common/Observer';
+import * as Constant from './../common/Constants';
+import { publishEvent } from './../common/Observer';
 import appService from './../service/appConversionService';
 import {timestampToDate, debounce} from './../common/Utils';
  
@@ -29,6 +29,7 @@ export default {
      data() {
       return {
           name: 'ram',
+          selectedIndex:0,
           lastConverstaionText:'NA',
           time:"07/03/1991",
           friends:[],
@@ -46,20 +47,25 @@ export default {
     fetchTransactions:function() {
             appService.getFriend().then(response => {
                 publishEvent(Constant.SHOW_LOADER);
-                
+                console.log(response.data);
+                publishEvent('username', response.data[0].name);
                 for(let x = 0;x<response.data.length; x++){
                     response.data[x].date = timestampToDate(response.data[x].date);
                 }
+
                 this.friends = response.data;
                 this.totalCount = response.length;
+                publishEvent('idSelected', response.data[0]._id);
+                publishEvent('userimage', response.data[0].profileimg);
                 localStorage.setItem('friends', JSON.stringify(this.friends));
                 publishEvent(Constant.HIDE_LOADER);
             }).catch(error => {
 
             })
             
-        },
-        search:debounce(function(text) {
+    },
+
+    search:debounce(function(text) {
             let searchResults = []
             let searchPeople = text.toLowerCase();
             this.friends = JSON.parse(localStorage.getItem('friends'));
@@ -71,14 +77,22 @@ export default {
                 this.Emptysearch();
                 return;
             }
-      },100),
+    },100),
 
-      Emptysearch:function() {
+    Emptysearch:function() {
            if (this.searchPeople != '' ) {} else {
             this.friends = JSON.parse(localStorage.getItem('friends'));
             this.totalCount = this.friends.length;
             }
-        },
+    },
+
+    ChatSelectedUser:function(id,name,index,image){
+        publishEvent('idSelected', id);
+        publishEvent('username', name);
+        publishEvent('userimage', image);
+        this.selectedIndex = index;
+    }
+
     }
 }
 </script>
@@ -95,7 +109,7 @@ export default {
   &:hover{background-color: #e9ebeb;}
   &.active{background-color: #e9ebeb;}
       .contactIMageDv{height:49px;width:49px;border-radius:50%;background-color: #dfe5e7;margin-right:16px;vertical-align:top;
-        img{border-radius:50%;}
+        img{border-radius:50%;width:49px;height:49px;}
       }
       .chatDetailDv{vertical-align:top;
           .contactName{font-size:18px;}
