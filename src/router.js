@@ -12,8 +12,7 @@ export default new Router({
   routes: [
     {
       path: "/",
-      components: {"main-page": MainPage},
-      beforeEnter: (to, from, next) => { },
+      components: {"main-page": MainPage}
     },
     
   ]

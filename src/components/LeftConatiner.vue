@@ -21,6 +21,7 @@
 import LeftConatinerHeader from './LeftConatinerHeader';
 import * as Constant from './../common/Constants';
 import { publishEvent } from './../common/Observer';
+import GlobalStorage from './../common/GlobalStorage';
 import appService from './../service/appConversionService';
 import {timestampToDate, debounce} from './../common/Utils';
  
@@ -48,6 +49,15 @@ export default {
             appService.getFriend().then(response => {
                 publishEvent(Constant.SHOW_LOADER);
                 console.log(response.data);
+                const queryName = this.$route.query.name;
+                if (queryName) {
+                    // one time
+                    const found = response.data.find((item) => item.name.toLowerCase().indexOf(queryName.toLowerCase()) !== -1 );
+                    if (found) {
+                        this.$socket.emit('setId', found._id);
+                    }
+                }
+
                 publishEvent('username', response.data[0].name);
                 for(let x = 0;x<response.data.length; x++){
                     response.data[x].date = timestampToDate(response.data[x].date);
@@ -55,6 +65,8 @@ export default {
 
                 this.friends = response.data;
                 this.totalCount = response.length;
+                // Set selected user
+                GlobalStorage.set('selectedId', response.data[0]._id);
                 publishEvent('idSelected', response.data[0]._id);
                 publishEvent('userimage', response.data[0].profileimg);
                 localStorage.setItem('friends', JSON.stringify(this.friends));
@@ -87,6 +99,8 @@ export default {
     },
 
     ChatSelectedUser:function(id,name,index,image){
+        // Set selected user
+        GlobalStorage.set('selectedId', id);
         publishEvent('idSelected', id);
         publishEvent('username', name);
         publishEvent('userimage', image);

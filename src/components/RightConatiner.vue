@@ -5,7 +5,7 @@
         <RightConatinerHeader></RightConatinerHeader>
         <div class="chatMainDV clearfix">
           <div class="fLft" v-bind:id="currentID">
-                <div class="talk-bubble tri-right round right-in"  v-for="message in messages" :key="message">
+                <div class="talk-bubble tri-right round right-in"  v-for="(message, index) in messages" :key="index">
                     <div class="talktext"><p>{{message}}</p></div>
                 </div>
         </div>
@@ -26,8 +26,8 @@
 <script>
 import { debounce } from './../common/Utils';
 import * as Constant from './../common/Constants';
+import GlobalStorage from './../common/GlobalStorage';
 import { subscribeEvent } from './../common/Observer';
-import {emit} from './../common/socket'
 import RightConatinerHeader from "./RightConatinerHeader";
 
 
@@ -53,12 +53,17 @@ export default {
     },
     mounted(){
     },
+    sockets: {
+        recieveMessage(data) {
+            console.log('data', data);
+            this.messages.push(data);
+        }
+    },
     methods: { 
    
     chatTypeEvent : function() {
                    if(this.chatinput !== ''){
-                    emit('message', this.chatinput);
-                    console.log(this.chatinput);
+                    this.$socket.emit('message', {id: GlobalStorage.get('selectedId'), message: this.chatinput})
                     this.addChatMessage(this.chatinput);
                     this.chatinput = '';
                    }
